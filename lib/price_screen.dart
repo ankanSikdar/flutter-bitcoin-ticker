@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'coin_data.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String currentCurrency = 'USD';
 
-  List<DropdownMenuItem> getDropDownItems() {
+  DropdownButton androidDropDown() {
     List<DropdownMenuItem<String>> dropDownItems = [];
     for (String currency in currenciesList) {
       dropDownItems.add(DropdownMenuItem(
@@ -18,15 +19,40 @@ class _PriceScreenState extends State<PriceScreen> {
         value: currency,
       ));
     }
-    return dropDownItems;
+
+    return DropdownButton(
+      value: currentCurrency,
+      items: dropDownItems,
+      onChanged: (value) {
+        setState(() {
+          currentCurrency = value;
+        });
+      },
+    );
   }
 
-  List<Widget> getPickerItems() {
+  CupertinoPicker getIOSPicker() {
     List<Text> items = [];
     for (String currency in currenciesList) {
       items.add(Text(currency));
     }
-    return items;
+
+    return CupertinoPicker(
+      backgroundColor: Colors.lightBlue,
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: items,
+    );
+  }
+
+  Widget getPicker() {
+    if (Platform.isIOS) {
+      return CupertinoPicker();
+    } else if (Platform.isAndroid) {
+      return androidDropDown();
+    }
   }
 
   @override
@@ -65,25 +91,10 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: CupertinoPicker(
-              backgroundColor: Colors.lightBlue,
-              itemExtent: 32.0,
-              onSelectedItemChanged: (selectedIndex) {},
-              children: getPickerItems(),
-            ),
+            child: Platform.isIOS ? getIOSPicker() : androidDropDown(),
           )
         ],
       ),
     );
   }
 }
-
-//DropdownButton(
-//value: currentCurrency,
-//items: getDropDownItems(),
-//onChanged: (value) {
-//setState(() {
-//currentCurrency = value;
-//});
-//},
-//),
